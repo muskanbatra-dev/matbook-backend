@@ -136,29 +136,6 @@ function buildZodSchema(formSchema) {
   return z.object(shape);
 }
 
-function validateSubmission(data, formSchema) {
-  const zodSchema = buildZodSchema(formSchema);
-
-  try {
-    zodSchema.parse(data);
-    return {};
-  } catch (err) {
-    if (err instanceof z.ZodError) {
-      const errors = {};
-
-      for (const issue of err.issues) {
-        const field = issue.path[0];
-        if (!errors[field]) errors[field] = issue.message;
-      }
-
-      return errors;
-    }
-
-    throw err;
-  }
-}
-
 module.exports = {
-  validateSubmission,
   buildZodSchema,
 };

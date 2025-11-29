@@ -3,7 +3,6 @@ const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
 const prisma = require("./db");
-const { validateSubmission } = require("./validate");
 const validateForm = require("./middleware/validateForm");
 const app = express();
 
@@ -46,17 +45,29 @@ app.post("/api/submissions", validateForm, async (req, res) => {
 
 app.get("/api/submissions", async (req, res) => {
   try {
-    const page = Math.max(Number(req.query.page) || 1, 1);
-    const limit = Math.max(Number(req.query.limit) || 10, 1);
+   
+    const page = parseInt(req.query.page, 10);
+    const validPage = !isNaN(page) && page > 0 ? page : 1;
+
+
+    const limit = parseInt(req.query.limit, 10);
+    const validLimit = !isNaN(limit) && limit > 0 ? limit : 10;
+
+    
+    const sortBy = req.query.sortBy === "createdAt" ? "createdAt" : "createdAt";
+
+    
     const sortOrder = req.query.sortOrder === "asc" ? "asc" : "desc";
 
-    const skip = (page - 1) * limit;
+   
+    const skip = (validPage - 1) * validLimit;
 
+  
     const [items, total] = await Promise.all([
       prisma.submission.findMany({
         skip,
-        take: limit,
-        orderBy: { createdAt: sortOrder },
+        take: validLimit,
+        orderBy: { [sortBy]: sortOrder },
       }),
       prisma.submission.count(),
     ]);
@@ -65,8 +76,11 @@ app.get("/api/submissions", async (req, res) => {
       success: true,
       submissions: items,
       total,
-      page,
-      totalPages: Math.ceil(total / limit),
+      page: validPage,
+      limit: validLimit,
+      sortBy,
+      sortOrder,
+      totalPages: Math.ceil(total / validLimit),
     });
   } catch (err) {
     console.error("GET /api/submissions error:", err);
