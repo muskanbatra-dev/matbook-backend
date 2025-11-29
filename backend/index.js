@@ -45,24 +45,18 @@ app.post("/api/submissions", validateForm, async (req, res) => {
 
 app.get("/api/submissions", async (req, res) => {
   try {
-   
     const page = parseInt(req.query.page, 10);
     const validPage = !isNaN(page) && page > 0 ? page : 1;
-
 
     const limit = parseInt(req.query.limit, 10);
     const validLimit = !isNaN(limit) && limit > 0 ? limit : 10;
 
-    
     const sortBy = req.query.sortBy === "createdAt" ? "createdAt" : "createdAt";
 
-    
     const sortOrder = req.query.sortOrder === "asc" ? "asc" : "desc";
 
-   
     const skip = (validPage - 1) * validLimit;
 
-  
     const [items, total] = await Promise.all([
       prisma.submission.findMany({
         skip,
