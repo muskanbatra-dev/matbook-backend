@@ -1,0 +1,95 @@
+{
+  "title": "Employee Onboarding Form",
+  "description": "Please complete the following onboarding information.",
+  "fields": [
+    {
+      "name": "fullName",
+      "label": "Full Name",
+      "type": "text",
+      "placeholder": "Enter your full name",
+      "required": true,
+      "validations": {
+        "minLength": 3,
+        "maxLength": 50
+      }
+    },
+    {
+      "name": "email",
+      "label": "Email Address",
+      "type": "text",
+      "placeholder": "Enter your email",
+      "required": true,
+      "validations": {
+        "regex": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+      }
+    },
+    {
+      "name": "age",
+      "label": "Age",
+      "type": "number",
+      "placeholder": "Enter your age",
+      "required": true,
+      "validations": {
+        "min": 18,
+        "max": 65
+      }
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "type": "select",
+      "placeholder": "Select department",
+      "required": true,
+      "options": [
+        { "label": "Engineering", "value": "engineering" },
+        { "label": "Product", "value": "product" },
+        { "label": "Design", "value": "design" },
+        { "label": "Human Resources", "value": "hr" }
+      ]
+    },
+    {
+      "name": "skills",
+      "label": "Skills",
+      "type": "multi-select",
+      "placeholder": "Select skills",
+      "required": true,
+      "options": [
+        { "label": "React", "value": "react" },
+        { "label": "Node.js", "value": "node" },
+        { "label": "AWS", "value": "aws" },
+        { "label": "UI/UX", "value": "uiux" }
+      ],
+      "validations": {
+        "minSelected": 1,
+        "maxSelected": 5
+      }
+    },
+    {
+      "name": "joiningDate",
+      "label": "Joining Date",
+      "type": "date",
+      "placeholder": "Select joining date",
+      "required": true,
+      "validations": {
+        "minDate": "2024-01-01"
+      }
+    },
+    {
+      "name": "bio",
+      "label": "Short Bio",
+      "type": "textarea",
+      "placeholder": "Write a short introduction",
+      "required": false,
+      "validations": {
+        "maxLength": 300
+      }
+    },
+    {
+      "name": "isRemote",
+      "label": "Remote Employee?",
+      "type": "switch",
+      "required": false
+    }
+  ]
+}
+
