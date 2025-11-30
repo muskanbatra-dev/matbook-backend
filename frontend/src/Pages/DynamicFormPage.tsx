@@ -12,7 +12,7 @@ export default function DynamicFormPage() {
 
   const fetchFormSchema = async () => {
     const res = await axios.get<FormSchema>(
-      "http://localhost:3000/api/form-schema"
+      "https://matbook-backend-1.onrender.com/api/form-schema"
     );
     console.log("Fetched schema:", res.data);
     return res.data;
@@ -33,7 +33,10 @@ export default function DynamicFormPage() {
     onSubmit: async ({ value, formApi }) => {
       try {
         setServerMessage(null);
-        await axios.post("http://localhost:3000/api/form-submissions", value);
+        await axios.post(
+          "https://matbook-backend-1.onrender.com/api/submissions",
+          value
+        );
 
         setServerMessage({
           type: "success",
@@ -84,7 +87,6 @@ export default function DynamicFormPage() {
 
         return (
           <div className="mb-4">
-           
             {field.type !== "switch" && (
               <label className="block text-sm font-medium mb-1">
                 {field.label}{" "}
@@ -92,7 +94,6 @@ export default function DynamicFormPage() {
               </label>
             )}
 
-           
             {field.type === "text" && (
               <input
                 type="text"
@@ -104,7 +105,6 @@ export default function DynamicFormPage() {
               />
             )}
 
-        
             {field.type === "number" && (
               <input
                 type="number"
@@ -116,7 +116,6 @@ export default function DynamicFormPage() {
               />
             )}
 
-           
             {field.type === "select" && (
               <select
                 className={baseClasses}
@@ -133,7 +132,6 @@ export default function DynamicFormPage() {
               </select>
             )}
 
-      
             {field.type === "multi-select" && (
               <select
                 multiple
@@ -154,7 +152,6 @@ export default function DynamicFormPage() {
               </select>
             )}
 
-           
             {field.type === "date" && (
               <input
                 type="date"
@@ -165,7 +162,6 @@ export default function DynamicFormPage() {
               />
             )}
 
-          
             {field.type === "textarea" && (
               <textarea
                 rows={4}
@@ -191,7 +187,6 @@ export default function DynamicFormPage() {
               </label>
             )}
 
-           
             {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
           </div>
         );

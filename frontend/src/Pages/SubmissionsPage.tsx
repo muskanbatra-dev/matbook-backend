@@ -34,7 +34,9 @@ export default function SubmissionsPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["submissions"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:3000/api/submissions");
+      const res = await axios.get(
+        "https://matbook-backend-1.onrender.com/api/submissions"
+      );
       return res.data.submissions;
     },
   });
