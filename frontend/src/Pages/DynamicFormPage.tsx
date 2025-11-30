@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
@@ -11,11 +10,11 @@ export default function DynamicFormPage() {
     text: string;
   }>(null);
 
-  
   const fetchFormSchema = async () => {
     const res = await axios.get<FormSchema>(
       "http://localhost:3000/api/form-schema"
     );
+    console.log("Fetched schema:", res.data);
     return res.data;
   };
 
@@ -29,13 +28,12 @@ export default function DynamicFormPage() {
     queryFn: fetchFormSchema,
   });
 
-  
   const form = useForm({
     defaultValues: {},
     onSubmit: async ({ value, formApi }) => {
       try {
         setServerMessage(null);
-        await axios.post("http://localhost:4000/api/form-submissions", value);
+        await axios.post("http://localhost:3000/api/form-submissions", value);
 
         setServerMessage({
           type: "success",
@@ -55,7 +53,6 @@ export default function DynamicFormPage() {
   if (isLoading) return <p>Loading form...</p>;
   if (isError || !schema) return <p>Error loading schema</p>;
 
-
   const validateField = (field: FormField, value: any) => {
     const rules = field.validation ?? {};
     const empty =
@@ -70,7 +67,6 @@ export default function DynamicFormPage() {
     return undefined;
   };
 
-  
   const renderField = (field: FormField) => (
     <form.Field
       key={field.name}
@@ -80,25 +76,123 @@ export default function DynamicFormPage() {
       }}
     >
       {(fieldApi) => {
-        const { value, meta, handleChange, handleBlur } = fieldApi.state;
+        const { value, meta } = fieldApi.state;
         const error = meta.errors?.[0];
+
+        const baseClasses =
+          "border p-2 w-full rounded focus:ring focus:ring-blue-300";
 
         return (
           <div className="mb-4">
+           
             {field.type !== "switch" && (
-              <label className="block text-sm font-medium">{field.label}</label>
+              <label className="block text-sm font-medium mb-1">
+                {field.label}{" "}
+                {field.required && <span className="text-red-500">*</span>}
+              </label>
             )}
 
+           
             {field.type === "text" && (
               <input
+                type="text"
+                className={baseClasses}
+                placeholder={field.placeholder}
                 value={value ?? ""}
                 onChange={(e) => fieldApi.handleChange(e.target.value)}
                 onBlur={fieldApi.handleBlur}
-                className="border p-2 w-full"
               />
             )}
 
-            {error && <p className="text-xs text-red-500">{error}</p>}
+        
+            {field.type === "number" && (
+              <input
+                type="number"
+                className={baseClasses}
+                placeholder={field.placeholder}
+                value={value ?? ""}
+                onChange={(e) => fieldApi.handleChange(Number(e.target.value))}
+                onBlur={fieldApi.handleBlur}
+              />
+            )}
+
+           
+            {field.type === "select" && (
+              <select
+                className={baseClasses}
+                value={value ?? ""}
+                onChange={(e) => fieldApi.handleChange(e.target.value)}
+                onBlur={fieldApi.handleBlur}
+              >
+                <option value="">{field.placeholder}</option>
+                {field.options?.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            )}
+
+      
+            {field.type === "multi-select" && (
+              <select
+                multiple
+                className={baseClasses}
+                value={value ?? []}
+                onChange={(e) =>
+                  fieldApi.handleChange(
+                    Array.from(e.target.selectedOptions).map((o) => o.value)
+                  )
+                }
+                onBlur={fieldApi.handleBlur}
+              >
+                {field.options?.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            )}
+
+           
+            {field.type === "date" && (
+              <input
+                type="date"
+                className={baseClasses}
+                value={value ?? ""}
+                onChange={(e) => fieldApi.handleChange(e.target.value)}
+                onBlur={fieldApi.handleBlur}
+              />
+            )}
+
+          
+            {field.type === "textarea" && (
+              <textarea
+                rows={4}
+                className={baseClasses}
+                placeholder={field.placeholder}
+                value={value ?? ""}
+                onChange={(e) => fieldApi.handleChange(e.target.value)}
+                onBlur={fieldApi.handleBlur}
+              />
+            )}
+
+            {field.type === "switch" && (
+              <label className="inline-flex gap-2 items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="toggle-checkbox h-5 w-9 rounded-full bg-gray-300 checked:bg-blue-600 relative appearance-none cursor-pointer transition-colors duration-200 focus:outline-none"
+                  checked={value || false}
+                  onChange={(e) => fieldApi.handleChange(e.target.checked)}
+                  onBlur={fieldApi.handleBlur}
+                />
+                <div className="toggle-slider absolute left-0 top-0 h-5 w-5 bg-white rounded-full shadow transform transition-transform duration-200 checked:translate-x-4"></div>
+                <span>{field.label}</span>
+              </label>
+            )}
+
+           
+            {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
           </div>
         );
       }}
