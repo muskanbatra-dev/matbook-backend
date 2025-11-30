@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
 import type { FormSchema, FormField } from "../types/formSchema";
 
-export default function DynamicFormPage() {
+interface DynamicFormPageProps {
+  onSubmitted?: () => void;
+}
+
+export default function DynamicFormPage({ onSubmitted }: DynamicFormPageProps) {
   const [serverMessage, setServerMessage] = useState<null | {
     type: "success" | "error";
     text: string;
@@ -14,7 +18,6 @@ export default function DynamicFormPage() {
     const res = await axios.get<FormSchema>(
       "https://matbook-backend-1.onrender.com/api/form-schema"
     );
-    console.log("Fetched schema:", res.data);
     return res.data;
   };
 
@@ -22,17 +25,17 @@ export default function DynamicFormPage() {
     data: schema,
     isLoading,
     isError,
-    error,
   } = useQuery({
     queryKey: ["form-schema"],
     queryFn: fetchFormSchema,
   });
 
   const form = useForm({
-    defaultValues: {},
+    defaultValues: {} as Record<string, any>,
     onSubmit: async ({ value, formApi }) => {
       try {
         setServerMessage(null);
+
         await axios.post(
           "https://matbook-backend-1.onrender.com/api/submissions",
           value
@@ -44,6 +47,8 @@ export default function DynamicFormPage() {
         });
 
         formApi.reset();
+
+        onSubmitted?.();
       } catch (err: any) {
         setServerMessage({
           type: "error",
@@ -57,15 +62,13 @@ export default function DynamicFormPage() {
   if (isError || !schema) return <p>Error loading schema</p>;
 
   const validateField = (field: FormField, value: any) => {
-    const rules = field.validation ?? {};
     const empty =
+      value === "" ||
       value === undefined ||
       value === null ||
-      value === "" ||
       (Array.isArray(value) && value.length === 0);
 
-    if ((field.required || rules.required) && empty)
-      return `${field.label} is required`;
+    if (field.required && empty) return `${field.label} is required`;
 
     return undefined;
   };
@@ -73,15 +76,15 @@ export default function DynamicFormPage() {
   const renderField = (field: FormField) => (
     <form.Field
       key={field.name}
-      name={field.name as any}
+      name={field.name}
       validators={{
         onChange: ({ value }) => validateField(field, value),
       }}
     >
       {(fieldApi) => {
         const { value, meta } = fieldApi.state;
-        const error = meta.errors?.[0];
 
+        const error = meta.errors?.[0];
         const baseClasses =
           "border p-2 w-full rounded focus:ring focus:ring-blue-300";
 
@@ -99,8 +102,8 @@ export default function DynamicFormPage() {
                 type="text"
                 className={baseClasses}
                 placeholder={field.placeholder}
-                value={value ?? ""}
-                onChange={(e) => fieldApi.handleChange(e.target.value)}
+                value={value || ""}
+                onChange={(e) => fieldApi.handleChange(() => e.target.value)}
                 onBlur={fieldApi.handleBlur}
               />
             )}
@@ -111,7 +114,9 @@ export default function DynamicFormPage() {
                 className={baseClasses}
                 placeholder={field.placeholder}
                 value={value ?? ""}
-                onChange={(e) => fieldApi.handleChange(Number(e.target.value))}
+                onChange={(e) =>
+                  fieldApi.handleChange(() => Number(e.target.value))
+                }
                 onBlur={fieldApi.handleBlur}
               />
             )}
@@ -120,7 +125,7 @@ export default function DynamicFormPage() {
               <select
                 className={baseClasses}
                 value={value ?? ""}
-                onChange={(e) => fieldApi.handleChange(e.target.value)}
+                onChange={(e) => fieldApi.handleChange(() => e.target.value)}
                 onBlur={fieldApi.handleBlur}
               >
                 <option value="">{field.placeholder}</option>
@@ -138,7 +143,7 @@ export default function DynamicFormPage() {
                 className={baseClasses}
                 value={value ?? []}
                 onChange={(e) =>
-                  fieldApi.handleChange(
+                  fieldApi.handleChange(() =>
                     Array.from(e.target.selectedOptions).map((o) => o.value)
                   )
                 }
@@ -157,7 +162,7 @@ export default function DynamicFormPage() {
                 type="date"
                 className={baseClasses}
                 value={value ?? ""}
-                onChange={(e) => fieldApi.handleChange(e.target.value)}
+                onChange={(e) => fieldApi.handleChange(() => e.target.value)}
                 onBlur={fieldApi.handleBlur}
               />
             )}
@@ -167,8 +172,8 @@ export default function DynamicFormPage() {
                 rows={4}
                 className={baseClasses}
                 placeholder={field.placeholder}
-                value={value ?? ""}
-                onChange={(e) => fieldApi.handleChange(e.target.value)}
+                value={(value as string) ?? ""}
+                onChange={(e) => fieldApi.handleChange(() => e.target.value)}
                 onBlur={fieldApi.handleBlur}
               />
             )}
@@ -177,12 +182,12 @@ export default function DynamicFormPage() {
               <label className="inline-flex gap-2 items-center cursor-pointer">
                 <input
                   type="checkbox"
-                  className="toggle-checkbox h-5 w-9 rounded-full bg-gray-300 checked:bg-blue-600 relative appearance-none cursor-pointer transition-colors duration-200 focus:outline-none"
-                  checked={value || false}
-                  onChange={(e) => fieldApi.handleChange(e.target.checked)}
+                  checked={!!value}
+                  onChange={(e) =>
+                    fieldApi.handleChange(() => e.target.checked)
+                  }
                   onBlur={fieldApi.handleBlur}
                 />
-                <div className="toggle-slider absolute left-0 top-0 h-5 w-5 bg-white rounded-full shadow transform transition-transform duration-200 checked:translate-x-4"></div>
                 <span>{field.label}</span>
               </label>
             )}

@@ -1,5 +1,3 @@
-
-
 export type FieldType =
   | "text"
   | "number"
@@ -30,9 +28,9 @@ export interface FormField {
   label: string;
   type: FieldType;
   placeholder?: string;
-  required: boolean;
   options?: FieldOption[];
   validations?: FieldValidations;
+  required: boolean;
 }
 
 export interface FormSchema {

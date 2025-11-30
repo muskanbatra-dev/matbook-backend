@@ -2,7 +2,7 @@ export type FieldType =
   | "text"
   | "number"
   | "select"
-  | "multiselect"
+  | "multi-select"
   | "date"
   | "textarea"
   | "switch";
@@ -12,14 +12,13 @@ export interface FieldOption {
   value: string;
 }
 
-export interface FieldValidation {
-  required?: boolean;
+export interface FieldValidations {
   minLength?: number;
   maxLength?: number;
   regex?: string;
   min?: number;
   max?: number;
-  minDate?: string; 
+  minDate?: string;
   minSelected?: number;
   maxSelected?: number;
 }
@@ -29,12 +28,13 @@ export interface FormField {
   label: string;
   type: FieldType;
   placeholder?: string;
+  required: boolean;
   options?: FieldOption[];
-  validation?: FieldValidation;
+  validations?: FieldValidations;
 }
 
 export interface FormSchema {
   title: string;
-  description?: string;
+  description: string;
   fields: FormField[];
 }

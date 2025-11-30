@@ -26,7 +26,7 @@ const columns = [
   }),
   columnHelper.accessor("data", {
     header: "View",
-    cell: (info) => <button>View</button>,
+    cell: () => <button>View</button>,
   }),
 ];
 
