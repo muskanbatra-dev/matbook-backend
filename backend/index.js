@@ -15,7 +15,9 @@ app.get("/", (req, res) => {
 
 app.get("/api/form-schema", (req, res) => {
   try {
-    const schema = JSON.parse(fs.readFileSync("formSchema.json", "utf8"));
+    const schemaPath = path.join(__dirname, "formSchema.json");
+
+    const schema = JSON.parse(fs.readFileSync(schemaPath, "utf8"));
     res.json(schema);
   } catch (err) {
     console.error("Error reading schema:", err);
