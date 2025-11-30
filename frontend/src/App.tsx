@@ -1,30 +1,38 @@
-import React, { useState } from "react";
+import React from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import DynamicFormPage from "./Pages/DynamicFormPage";
 import SubmissionsPage from "./Pages/SubmissionsPage";
 
-const App: React.FC = () => {
-  const [view, setView] = useState<"form" | "submissions">("form");
+export default function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isForm = location.pathname === "/";
+  const isSubmissions = location.pathname === "/submissions";
 
   return (
     <div className="min-h-screen bg-slate-50">
+
       <header className="border-b bg-white">
         <div className="max-w-4xl mx-auto flex items-center justify-between px-4 py-3">
           <h1 className="text-xl font-semibold">MatBook Dynamic Form</h1>
+
           <div className="space-x-2">
             <button
-              onClick={() => setView("form")}
+              onClick={() => navigate("/")}
               className={`px-3 py-1 rounded text-sm ${
-                view === "form"
+                isForm
                   ? "bg-slate-900 text-white"
                   : "bg-slate-100 hover:bg-slate-200"
               }`}
             >
               Form
             </button>
+
             <button
-              onClick={() => setView("submissions")}
+              onClick={() => navigate("/submissions")}
               className={`px-3 py-1 rounded text-sm ${
-                view === "submissions"
+                isSubmissions
                   ? "bg-slate-900 text-white"
                   : "bg-slate-100 hover:bg-slate-200"
               }`}
@@ -35,15 +43,18 @@ const App: React.FC = () => {
         </div>
       </header>
 
+ 
       <main className="max-w-4xl mx-auto px-4 py-6">
-        {view === "form" ? (
-          <DynamicFormPage onSubmitted={() => setView("submissions")} />
-        ) : (
-          <SubmissionsPage />
-        )}
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <DynamicFormPage onSubmitted={() => navigate("/submissions")} />
+            }
+          />
+          <Route path="/submissions" element={<SubmissionsPage />} />
+        </Routes>
       </main>
     </div>
   );
-};
-
-export default App;
+}
