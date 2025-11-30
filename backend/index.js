@@ -5,7 +5,7 @@ const fs = require("fs");
 const prisma = require("./db");
 const validateForm = require("./middleware/validateForm");
 const app = express();
-
+const path = require("path");
 app.use(cors());
 app.use(express.json());
 
